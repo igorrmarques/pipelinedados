@@ -1,0 +1,71 @@
+from processamento_dados import Dados
+
+print("\n")
+
+path_json = 'data_raw/dados_empresaA.json'
+path_csv = 'data_raw/dados_empresaB.csv'
+
+#Extract:
+print(f'Extraíndo dadosA de: "{path_json}"...')
+dados_empresaA = Dados(path_json, 'json')
+print('dadosA extraídos com êxito!')
+print(f'Colunas empresa A do tipo: {dados_empresaA.tipo_dados}:')
+print(dados_empresaA.nome_colunas)
+print(f'Quantidade de Linhas: {dados_empresaA.qtd_linhas} linhas')
+print("\n")
+
+print(f'Extraíndo dadosB de: "{path_csv}"...')
+dados_empresaB = Dados(path_csv, 'csv')
+print('dadosB extraídos com êxito!')
+print(f'Colunas empresa B do tipo: {dados_empresaB.tipo_dados}:')
+print(dados_empresaB.nome_colunas)
+print(f'Quantidade de Linhas: {dados_empresaB.qtd_linhas} linhas')
+print("\n")
+
+#Transform:
+
+key_mapping = {'Nome do Item': 'Nome do Produto',
+                'Classificação do Produto': 'Categoria do Produto',
+                'Valor em Reais (R$)': 'Preço do Produto (R$)',
+                'Quantidade em Estoque': 'Quantidade em Estoque',
+                'Nome da Loja': 'Filial',
+                'Data da Venda': 'Data da Venda'}
+
+print('Iniciando padronização de colunas...')
+dados_empresaB.rename_collumns(key_mapping)
+print('Colunas padronizadas com êxito!')
+print(f'Colunas da empresa B seguindo os critérios da empresa A')
+print(f'A: {dados_empresaA.nome_colunas}')
+print(f'B: {dados_empresaB.nome_colunas}')
+print("\n")
+
+print('Iniciando fusão de dados...')
+dados_fusao = Dados.join(dados_empresaA, dados_empresaB)
+print('Dados fundidos com êxito!')
+print('Verificando integridade dos arquivos...')
+print('Nome das colunas dos dados fundidos:')
+print(dados_fusao.nome_colunas)
+soma_linhas = dados_empresaA.qtd_linhas + dados_empresaB.qtd_linhas
+print(f'Quantidade de linhas esperadas é igual a: {dados_empresaA.qtd_linhas} + {dados_empresaB.qtd_linhas} = {soma_linhas} linhas.')
+
+if dados_fusao.qtd_linhas == soma_linhas:
+    print(f'Quantidade de Linhas: {dados_fusao.qtd_linhas} linhas.')
+    print('O resultado condiz com o esperado!')
+else:
+    print('As linhas estão divergindo, rever arquivos e programação')
+
+print("\n")
+
+#Load
+print('Iniciando etapa de salvamento de dados:')
+path_dados_combinados = 'data_processed/dados_combinados.csv'
+print(f'Os dados serão salvos no caminho: {path_dados_combinados}')
+print('Salvando...')
+dados_fusao.salvando_dados(path_dados_combinados)
+print('Salvamento concluído!')
+print('Link do caminho depois de salvo:')
+print(path_dados_combinados)
+print("\n")
+
+# Comentar: CTRL + K, CTRL + C
+# Descomentar: CTRL + K, CTRL + U
